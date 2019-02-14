@@ -330,9 +330,12 @@ normalizedBody =
   unwords [
     "pgrst_payload AS (SELECT $1::json AS json_data),",
     "pgrst_body AS (",
-      "SELECT json_data AS val FROM pgrst_payload WHERE json_typeof(json_data) = 'array'",
-      "UNION ALL",
-      "SELECT json_build_array(json_data) AS val FROM pgrst_payload WHERE json_typeof(json_data) = 'object')"]
+      "SELECT",
+        "CASE WHEN json_typeof(json_data) = 'array'",
+          "THEN json_data",
+          "ELSE json_build_array(json_data)",
+        "END AS val",
+      "FROM pgrst_payload)"]
 
 selectBody :: SqlFragment
 selectBody = "(SELECT val FROM pgrst_body)"
